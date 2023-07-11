@@ -85,9 +85,6 @@ class m230628_122702_initial_table extends Migration
         // Drop the `user` table
         $this->dropTable('user');
 
-        // Drop the `item` table
-        $this->dropTable('item');
-
         // Drop the `invoice_detail` table
         $this->dropTable('invoice_detail');
 
