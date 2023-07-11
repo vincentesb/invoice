@@ -1,5 +1,8 @@
 <?php
 
+use app\models\Invoice;
+use app\models\InvoiceDetail;
+use app\models\User;
 use yii\db\Migration;
 
 /**
@@ -19,56 +22,61 @@ class m230628_122702_initial_table extends Migration
         $this->db->createCommand("USE `esb`;")->execute();
 
         // Create the `invoice` table
-        $this->createTable('invoice', [
-            'id' => $this->primaryKey(),
-            'user_id' => $this->integer(),
-            'issue_date' => $this->date(),
-            'due_date' => $this->date(),
-            'subject' => $this->string(50),
-            'subtotal' => $this->integer(),
-            'tax' => $this->integer(),
-            'payments' => $this->integer(),
-            'amount_due' => $this->integer(),
-            'customer_name' => $this->string(45),
-            'detail_address' => $this->text(),
-            'status' => $this->string(20),
-            'flag_active' => $this->integer()->defaultValue(1),
-            'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
-            'updated_at' => $this->dateTime(),
-            'deleted_at' => $this->dateTime(),
-        ]);
+        if ($this->db->getTableSchema(Invoice::tableName(), true) === null) {
+            $this->createTable('invoice', [
+                'id' => $this->primaryKey(),
+                'user_id' => $this->integer(),
+                'issue_date' => $this->date(),
+                'due_date' => $this->date(),
+                'subject' => $this->string(50),
+                'subtotal' => $this->integer(),
+                'tax' => $this->integer(),
+                'payments' => $this->integer(),
+                'amount_due' => $this->integer(),
+                'customer_name' => $this->string(45),
+                'detail_address' => $this->text(),
+                'status' => $this->string(20),
+                'flag_active' => $this->integer()->defaultValue(1),
+                'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
+                'updated_at' => $this->dateTime(),
+                'deleted_at' => $this->dateTime(),
+            ]);
+        }
 
         // Create the `invoice_detail` table
-        $this->createTable('invoice_detail', [
-            'id' => $this->primaryKey(),
-            'invoice_id' => $this->integer()->notNull(),
-            'item_type' => $this->string(20),
-            'description' => $this->string(100),
-            'quantity' => $this->integer(),
-            'unit_price' => $this->integer(),
-            'amount' => $this->integer(),
-            'flag_active' => $this->integer()->defaultValue(1),
-            'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
-            'updated_at' => $this->dateTime(),
-            'deleted_at' => $this->dateTime(),
-        ]);
+        if ($this->db->getTableSchema(InvoiceDetail::tableName(), true) === null) {
+            $this->createTable('invoice_detail', [
+                'id' => $this->primaryKey(),
+                'invoice_id' => $this->integer()->notNull(),
+                'item_type' => $this->string(20),
+                'description' => $this->string(100),
+                'quantity' => $this->integer(),
+                'unit_price' => $this->integer(),
+                'amount' => $this->integer(),
+                'flag_active' => $this->integer()->defaultValue(1),
+                'created_at' => $this->dateTime()->defaultExpression('CURRENT_TIMESTAMP'),
+                'updated_at' => $this->dateTime(),
+                'deleted_at' => $this->dateTime(),
+            ]);
+        }
 
         // Create the `user` table
-        $this->createTable('user', [
-            'id' => $this->primaryKey(),
-            'username' => $this->string(45)->notNull(),
-            'address' => $this->text()->notNull(),
-            'flag_active' => $this->tinyInteger(),
-            'created_at' => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
-            'updated_at' => $this->dateTime(),
-            'deleted_at' => $this->dateTime(),
-        ]);
+        if ($this->db->getTableSchema(User::tableName(), true) === null) {
+            $this->createTable('user', [
+                'id' => $this->primaryKey(),
+                'username' => $this->string(45)->notNull(),
+                'address' => $this->text()->notNull(),
+                'flag_active' => $this->tinyInteger(),
+                'created_at' => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
+                'updated_at' => $this->dateTime(),
+                'deleted_at' => $this->dateTime(),
+            ]);
+        }
         // insert base user data
-        $this->batchInsert('user', ['id', 'username', 'address', 'flag_active', 'created_at'], [
-            [1, 'vincent', 'Jl. Gading Serpong Raya no 31 blok IV', 1, '2023-06-22 08:39:57'],
-            [2, 'test', 'Jl Tangerang Raya no 22', 0, '2023-06-22 08:39:57'],
-            [3, 'kent', 'Jl Kelapa dua raya no 15', 1, '2023-06-22 08:39:57'],
-            [4, 'test', 'jalan testing 123', 0, '2023-06-28 19:30:34'],
+        $this->batchInsert('user', ['username', 'address', 'flag_active', 'created_at'], [
+            ['dummy_1', 'Jl. Gading Serpong Raya no 31 blok IV', 1, '2023-06-22 08:39:57'],
+            ['dummy_2', 'Jl Tangerang Raya no 22', 0, '2023-06-22 08:39:57'],
+            ['dummy_3', 'Jl Kelapa dua raya no 15', 1, '2023-06-22 08:39:57'],
         ]);
     }
 
