@@ -4,6 +4,7 @@ use app\models\Invoice;
 use app\models\InvoiceDetail;
 use app\models\User;
 use yii\db\Migration;
+use yii\db\mysql\Schema;
 
 /**
  * Class m230628_122702_initial_table
@@ -15,16 +16,13 @@ class m230628_122702_initial_table extends Migration
      */
     public function up()
     {
-        // Create database if not exists
-        $this->db->createCommand("CREATE DATABASE IF NOT EXISTS `esb` /*!40100 DEFAULT CHARACTER SET latin1 */;")->execute();
-
         // Use the `esb` database
         $this->db->createCommand("USE `esb`;")->execute();
 
         // Create the `invoice` table
         if ($this->db->getTableSchema(Invoice::tableName(), true) === null) {
             $this->createTable('invoice', [
-                'id' => $this->primaryKey(),
+                'id' => Schema::TYPE_PK . ' NOT NULL AUTO_INCREMENT',
                 'user_id' => $this->integer(),
                 'issue_date' => $this->date(),
                 'due_date' => $this->date(),
@@ -46,7 +44,7 @@ class m230628_122702_initial_table extends Migration
         // Create the `invoice_detail` table
         if ($this->db->getTableSchema(InvoiceDetail::tableName(), true) === null) {
             $this->createTable('invoice_detail', [
-                'id' => $this->primaryKey(),
+                'id' => Schema::TYPE_PK . ' NOT NULL AUTO_INCREMENT',
                 'invoice_id' => $this->integer()->notNull(),
                 'item_type' => $this->string(20),
                 'description' => $this->string(100),
@@ -63,10 +61,10 @@ class m230628_122702_initial_table extends Migration
         // Create the `user` table
         if ($this->db->getTableSchema(User::tableName(), true) === null) {
             $this->createTable('user', [
-                'id' => $this->primaryKey(),
+                'id' => Schema::TYPE_PK . ' NOT NULL AUTO_INCREMENT',
                 'username' => $this->string(45)->notNull(),
                 'address' => $this->text()->notNull(),
-                'flag_active' => $this->tinyInteger(),
+                'flag_active' => $this->integer(),
                 'created_at' => $this->dateTime()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
                 'updated_at' => $this->dateTime(),
                 'deleted_at' => $this->dateTime(),

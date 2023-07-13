@@ -91,78 +91,103 @@ class Invoice extends \yii\db\ActiveRecord
     public function saveModel($data = null)
     {
         try {
-            $this->amount_due = $this->subtotal - $this->payments + $this->tax;
-            if ($this->amount_due == 0) {
-                $this->status = 'PAID';
-            } else {
-                $this->status = 'UNPAID';
-            }
             if ($data) {
                 $this->issue_date = $data['issue_date'];
                 $this->due_date = $data['due_date'];
                 $this->subject = $data['subject'];
                 $this->user_id = $data['user_id'];
-                $this->subtotal = $data['subtotal'];
-                $this->tax = $data['tax'];
                 $this->payments = $data['payments'];
                 $this->customer_name = $data['customer_name'];
                 $this->detail_address = $data['detail_address'];
-                foreach ($data['invoiceDetails'] as $details) {
-                    $detailModel = InvoiceDetail::find(['id' => $this->id])->one();
-                    $detailModel->item_type = $details['item_type'];
-                    $detailModel->description = $details['description'];
-                    $detailModel->quantity = $details['quantity'];
-                    $detailModel->unit_price = $details['unit_price'];
-                    $detailModel->amount = $details['amount'];
-                    if (!$detailModel->save()) {
-                        Yii::error($detailModel->getErrors());
-                        throw new Exception();
-                    }
-                }
-            }
 
-            if (!$this->save()) {
-                Yii::error($this->getErrors());
-                throw new Exception();
-            }
-            if ($this->invoiceDetails !== null) {
-                $detailModel = InvoiceDetail::find(['invoice_id' => $this->id])->all();
-                foreach ($detailModel as $key) {
-                    $key->flag_active = 0;
-                    $key->deleted_at = date('y-m-d h:i:s');
-                    $key->save();
+                $this->invoiceDetails = $data['invoiceDetails'];
+                $oldDetails = InvoiceDetail::findAll(['invoice_id' => $this->id]);
+                foreach ($oldDetails as $details) {
+                    $details->delete();
                 }
-                foreach ($this->invoiceDetails as $detail) {
+                $subtotal = 0;
+                foreach ($data['invoiceDetails'] as $details) {
                     $detailModel = new InvoiceDetail();
-                    $detailModel->invoice_id = $this->id;
-                    $detailModel->item_type = $detail['item_type'];
-                    $detailModel->description = $detail['description'];
-                    $detailModel->quantity = $detail['quantity'];
-                    $detailModel->unit_price = $detail['unit_price'];
-                    $detailModel->amount = $detail['amount'];
+                    $detailModel['invoice_id'] = $this->id;
+                    $detailModel['item_type'] = $details['item_type'];
+                    $detailModel['description'] = $details['description'];
+                    $detailModel['quantity'] = $details['quantity'];
+                    $detailModel['unit_price'] = $details['unit_price'];
+                    $detailModel['amount'] = $details['quantity'] * $details['unit_price'];
+                    $subtotal += $detailModel['amount'];
                     if (!$detailModel->save()) {
                         Yii::error($detailModel->getErrors());
                         throw new Exception();
                     }
+                }
+
+                $this->subtotal = $subtotal;
+                $this->tax = $subtotal * 10 / 100;
+                $this->amount_due = $data['subtotal'] - $data['payments'] + $data['tax'];
+                if ($this->amount_due == 0) {
+                    $this->status = 'PAID';
+                } else {
+                    $this->status = 'UNPAID';
+                }
+
+                if (!$this->save()) {
+                    Yii::error($this->getErrors());
+                    throw new Exception();
                 }
             } else {
-                $allInvoiceDetail = InvoiceDetail::find(['invoice_id' => $this->id])->all();
-                foreach ($allInvoiceDetail as $detail) {
-                    $detailModel = InvoiceDetail::find(['id' => $detail['id']])->one();
-                    yii::warning($detailModel);
-                    $detailModel->invoice_id = $this->id;
-                    $detailModel->item_type = $detail['item_type'];
-                    $detailModel->description = $detail['description'];
-                    $detailModel->quantity = $detail['quantity'];
-                    $detailModel->unit_price = $detail['unit_price'];
-                    $detailModel->amount = $detail['amount'];
-                    if (!$detailModel->save()) {
-                        Yii::error($detailModel->getErrors());
-                        throw new Exception();
+                $this->amount_due = $this->subtotal - $this->payments + $this->tax;
+                if ($this->amount_due == 0) {
+                    $this->status = 'PAID';
+                } else {
+                    $this->status = 'UNPAID';
+                }
+
+                if (!$this->save()) {
+                    Yii::error($this->getErrors());
+                    throw new Exception();
+                }
+                if ($this->invoiceDetails) {
+                    $oldDetails = InvoiceDetail::findAll(['invoice_id' => $this->id]);
+                    foreach ($oldDetails as $details) {
+                        $details->delete();
                     }
+                    foreach ($this->invoiceDetails as $detail) {
+                        $detailModel = new InvoiceDetail();
+                        $detailModel['invoice_id'] = $this->id;
+                        $detailModel['item_type'] = $detail['item_type'];
+                        $detailModel['description'] = $detail['description'];
+                        $detailModel['quantity'] = $detail['quantity'];
+                        $detailModel['unit_price'] = $detail['unit_price'];
+                        $detailModel['amount'] = $detail['amount'];
+                        if (!$detailModel->save()) {
+                            Yii::error($detailModel->getErrors());
+                            throw new Exception();
+                        }
+                    }
+                } else {
+                    $detailModel = [];
+                    $allInvoiceDetail = InvoiceDetail::find(['invoice_id' => $this->id])->all();
+                    foreach ($allInvoiceDetail as $detail) {
+                        $detailModel = InvoiceDetail::find(['id' => $detail['id']])->one();
+                        $detailModel['invoice_id'] = $this->id;
+                        $detailModel['item_type'] = $detail['item_type'];
+                        $detailModel['description'] = $detail['description'];
+                        $detailModel['quantity'] = $detail['quantity'];
+                        $detailModel['unit_price'] = $detail['unit_price'];
+                        $detailModel['amount'] = $detail['amount'];
+                        if (!$detailModel->save()) {
+                            Yii::error($detailModel->getErrors());
+                            throw new Exception();
+                        }
+                    }
+                    $this->invoiceDetails = $allInvoiceDetail;
                 }
             }
-            return ApiHelper::apiError(200, 'success', $this, 'success');
+            $response = [
+                "invoice" => $this,
+                "details" => $this->invoiceDetails
+            ];
+            return ApiHelper::apiError(200, 'success', $response, 'success');
         } catch (Exception $ex) {
             Yii::error($ex);
             return ApiHelper::apiError($ex->getCode(), $ex->getMessage(), $this);

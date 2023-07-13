@@ -17,7 +17,7 @@ class AppHelper
             'message' => $errorMsg
         ];
         if ($errorData != null) {
-            $errorResponse['details'] = $errorData;
+            $errorResponse['data'] = $errorData;
         }
 
         Yii::$app->response->statusCode = $errorCode;
