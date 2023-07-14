@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Invoice;
-use app\models\InvoiceDetail;
 use app\models\InvoiceSearch;
 use Exception;
 use kartik\widgets\ActiveForm;
@@ -99,7 +98,7 @@ class InvoiceController extends Controller
                 'success',
                 Yii::t('app', 'Successfully saved Invoice')
             );
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [
@@ -119,14 +118,17 @@ class InvoiceController extends Controller
         $model->fillInvoiceDetails();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $data = Yii::$app->request->post();
-            if (!$model->saveModel($data)) {
+            if (!$model->saveModel()) {
                 Yii::$app->session->setFlash(
                     'error',
-                    Yii::t('app', 'Failed to save Invoice, please try again')
+                    Yii::t('app', 'Failed to update Invoice, please try again')
                 );
                 return $this->redirect(['index']);
             }
+            Yii::$app->session->setFlash(
+                'success',
+                Yii::t('app', 'Successfully updated Invoice')
+            );
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -147,18 +149,17 @@ class InvoiceController extends Controller
         $model->flag_active = 0;
 
         if (!$model->save()) {
+            Yii::$app->session->setFlash(
+                'error',
+                Yii::t('app', 'Failed to delete Invoice, please try again')
+            );
             throw new Exception();
         }
 
-        $invoiceDetailModel = InvoiceDetail::find()->where(['invoice_id' => $id])->all();
-
-        foreach ($invoiceDetailModel as $detail) {
-            $deleteDetailModel = InvoiceDetail::find()->where(['ID' => $detail->ID])->one();
-            $deleteDetailModel->flag_active = 0;
-            if (!$deleteDetailModel->save()) {
-                throw new Exception();
-            }
-        }
+        Yii::$app->session->setFlash(
+            'success',
+            Yii::t('app', 'Successfully deleted Invoice')
+        );
 
         return $this->redirect(['index']);
     }
@@ -167,9 +168,6 @@ class InvoiceController extends Controller
     {
         $model = $this->findModel($id);
         $model->fillInvoiceDetails();
-
-        // echo '<pre>' . var_export($model, true) . '</pre>';
-        // die();
 
         $content = $this->render('print', [
             'model' => $model

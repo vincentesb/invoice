@@ -4,6 +4,7 @@ use app\components\AppHelper;
 use app\models\User;
 use kartik\datecontrol\DateControl;
 use kartik\widgets\Select2;
+use yii\bootstrap\Alert;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
@@ -12,6 +13,26 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\Invoice */
 /* @var $form yii\widgets\ActiveForm */
+?>
+
+<?php if (Yii::$app->session->hasFlash('success')) {
+    echo Alert::widget([
+        'options' => [
+            'class' => 'alert-success',
+        ],
+        'body' => Yii::$app->session->getFlash('success'),
+    ]);
+}
+?>
+<?php if (Yii::$app->session->hasFlash('error')) {
+    echo Alert::widget([
+        'options' => [
+            'class' => 'alert-danger',
+        ],
+        'body' => Yii::$app->session->getFlash('error'),
+    ]);
+}
+
 ?>
 
 <div class="invoice-form">

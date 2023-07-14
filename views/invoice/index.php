@@ -1,12 +1,29 @@
 <?php
 
-use kartik\select2\Select2;
+use yii\bootstrap\Alert;
 use yii\helpers\Html;
 use yii\grid\GridView;
-use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\InvoiceSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+
+if (Yii::$app->session->hasFlash('success')) {
+    echo Alert::widget([
+        'options' => [
+            'class' => 'alert-success',
+        ],
+        'body' => Yii::$app->session->getFlash('success'),
+    ]);
+}
+
+if (Yii::$app->session->hasFlash('error')) {
+    echo Alert::widget([
+        'options' => [
+            'class' => 'alert-danger',
+        ],
+        'body' => Yii::$app->session->getFlash('error'),
+    ]);
+}
 
 $this->title = 'Invoice';
 $this->params['breadcrumbs'][] = $this->title;
@@ -51,7 +68,14 @@ $this->params['breadcrumbs'][] = $this->title;
                                         return Html::a('<span class="glyphicon glyphicon-print with-text"></span>', $url, ['title' => 'Print', 'id' => $model->id]);
                                     },
                                     'delete' => function ($url, $model) {
-                                        return Html::a('<span class="glyphicon glyphicon-trash with-text"></span>', $url, ['title' => 'Delete', 'id' => $model->id]);
+                                        return Html::a('<span class="glyphicon glyphicon-trash with-text"></span>', $url, [
+                                            'title' => 'Delete',
+                                            'id' => $model->id,
+                                            'data' => [
+                                                'method' => 'post',
+                                                'confirm' => 'Are you sure you want to delete this item?',
+                                            ],
+                                        ]);
                                     }
                                 ],
                             ],
