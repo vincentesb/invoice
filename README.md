@@ -38,14 +38,14 @@
   "amount" : amount\
   }\
   ]\
-  }\
+  }
 - Get Invoice: get all invoice (body none) or entering specific invoice by id\
   url: http://localhost:8080/api/invoice/get-invoice \
   method: GET\
   example:\
   {\
   "id" : id\
-  }\
+  }
 - Update Invoice: updates specific invoice by id, inserting data and details\
   url: http://localhost:8080/api/invoice/update-invoice \
   method: PUT\
@@ -77,14 +77,14 @@
   "amount" : amount\
   }\
   ]\
-  }\
+  }
 - Delete Invoice: deleting specific invoice by id\
   url: http://localhost:8080/api/invoice/delete-invoice \
   method: DELETE\
   example:\
   {\
   "id" : 1\
-  }\
+  }
 - Print Invoice: print specific invoice by id\
   url: http://localhost:8080/invoice/print/1 \
   method: GET\
