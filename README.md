@@ -87,4 +87,4 @@
   }
 - Print Invoice: print specific invoice by id\
   url: http://localhost:8080/invoice/print/1 \
-  method: GET\
+  method: GET
