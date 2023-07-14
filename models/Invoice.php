@@ -4,7 +4,6 @@ namespace app\models;
 
 use app\modules\api\components\AppHelper as ApiHelper;
 use Exception;
-use Yii;
 
 /**
  * This is the model class for table "invoice".
@@ -116,7 +115,6 @@ class Invoice extends \yii\db\ActiveRecord
                     $detailModel['amount'] = $details['quantity'] * $details['unit_price'];
                     $subtotal += $detailModel['amount'];
                     if (!$detailModel->save()) {
-                        Yii::error($detailModel->getErrors());
                         throw new Exception();
                     }
                 }
@@ -131,7 +129,6 @@ class Invoice extends \yii\db\ActiveRecord
                 }
 
                 if (!$this->save()) {
-                    Yii::error($this->getErrors());
                     throw new Exception();
                 }
             } else {
@@ -143,13 +140,14 @@ class Invoice extends \yii\db\ActiveRecord
                 }
 
                 if (!$this->save()) {
-                    Yii::error($this->getErrors());
                     throw new Exception();
                 }
                 if ($this->invoiceDetails) {
                     $oldDetails = InvoiceDetail::findAll(['invoice_id' => $this->id]);
-                    foreach ($oldDetails as $details) {
-                        $details->delete();
+                    if ($oldDetails) {
+                        foreach ($oldDetails as $details) {
+                            $details->delete();
+                        }
                     }
                     foreach ($this->invoiceDetails as $detail) {
                         $detailModel = new InvoiceDetail();
@@ -160,27 +158,9 @@ class Invoice extends \yii\db\ActiveRecord
                         $detailModel['unit_price'] = $detail['unit_price'];
                         $detailModel['amount'] = $detail['amount'];
                         if (!$detailModel->save()) {
-                            Yii::error($detailModel->getErrors());
                             throw new Exception();
                         }
                     }
-                } else {
-                    $detailModel = [];
-                    $allInvoiceDetail = InvoiceDetail::find(['invoice_id' => $this->id])->all();
-                    foreach ($allInvoiceDetail as $detail) {
-                        $detailModel = InvoiceDetail::find(['id' => $detail['id']])->one();
-                        $detailModel['invoice_id'] = $this->id;
-                        $detailModel['item_type'] = $detail['item_type'];
-                        $detailModel['description'] = $detail['description'];
-                        $detailModel['quantity'] = $detail['quantity'];
-                        $detailModel['unit_price'] = $detail['unit_price'];
-                        $detailModel['amount'] = $detail['amount'];
-                        if (!$detailModel->save()) {
-                            Yii::error($detailModel->getErrors());
-                            throw new Exception();
-                        }
-                    }
-                    $this->invoiceDetails = $allInvoiceDetail;
                 }
             }
             $response = [
@@ -189,7 +169,6 @@ class Invoice extends \yii\db\ActiveRecord
             ];
             return ApiHelper::apiError(200, 'success', $response, 'success');
         } catch (Exception $ex) {
-            Yii::error($ex);
             return ApiHelper::apiError($ex->getCode(), $ex->getMessage(), $this);
         }
     }
