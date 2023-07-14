@@ -62,8 +62,8 @@ class Invoice extends ModelsInvoice
             ->from(ModelsInvoice::tableName())
             ->leftJoin(User::tableName(), "invoice.user_id = user.id")
             ->where(['=', 'invoice.flag_active', '1']);
-        if ($id) {
-            $mainQuery->andWhere(['=', 'invoice.id', $id]);
+        if ($this->id) {
+            $mainQuery->andWhere(['=', 'invoice.id', $this->id]);
         }
 
         $detailsQuery = (new Query)
