@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Invoice;
@@ -41,7 +40,7 @@ class InvoiceSearch extends Invoice
      */
     public function search($params)
     {
-        $query = Invoice::find();
+        $query = Invoice::find()->where(['flag_active' => 1]);
 
         // add conditions that should always apply here
 
