@@ -2,8 +2,6 @@
 /* @var $this \yii\web\View */
 /* @var $model \app\models\Invoice */
 
-use app\components\AppHelper;
-
 ?>
 <?php $this->context->layout = false; ?>
 <?php $this->beginPage() ?>
@@ -47,6 +45,13 @@ use app\components\AppHelper;
                             <td>:</td>
                             <td><?=
                                 $model->subject
+                                ?></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold;"><?= $model->getAttributeLabel('status') ?></td>
+                            <td>:</td>
+                            <td><?=
+                                $model->status
                                 ?></td>
                         </tr>
                     </table>

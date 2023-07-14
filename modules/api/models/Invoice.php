@@ -7,7 +7,6 @@ use app\modules\api\components\AppHelper as ApiHelper;
 use app\models\InvoiceDetail;
 use app\models\User;
 use Exception;
-use Yii;
 use yii\db\Query;
 
 class Invoice extends ModelsInvoice
@@ -121,9 +120,5 @@ class Invoice extends ModelsInvoice
         } catch (Exception $ex) {
             return ApiHelper::apiError($ex->getCode(), $ex->getMessage());
         }
-    }
-
-    public function updateInvoice()
-    {
     }
 }

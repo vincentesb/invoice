@@ -6,7 +6,6 @@ use app\modules\api\models\Invoice;
 use app\modules\api\components\AppHelper as ApiHelper;
 use Exception;
 use Yii;
-use yii\web\NotFoundHttpException;
 
 class InvoiceController extends \yii\rest\ActiveController
 {
@@ -68,7 +67,6 @@ class InvoiceController extends \yii\rest\ActiveController
                 'attributes' => Yii::$app->request->post()
             ]);
 
-            // print_r(Yii::$app->request->post());
             if (!$model->validate()) {
                 return [
                     'errors' => $model->errors

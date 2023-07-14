@@ -13,7 +13,6 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="invoice-detail-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
         <?= Html::a(Yii::t('app', 'Create Invoice Detail'), ['create'], ['class' => 'btn btn-success']) ?>
@@ -30,13 +29,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'item_type',
             'description',
             'quantity',
-            // 'unit_price',
-            // 'amount',
-            // 'customer_name',
-            // 'detail_address:ntext',
-            // 'created_at',
-            // 'updated_at',
-            // 'deleted_at',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
